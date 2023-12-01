@@ -19,9 +19,11 @@ struct Cli {
     secpprivatekey: String,
 
     /// attestation endpoint
+    #[arg(short, long)]
     attestationport: u16,
 
     ///max age of attestation
+    #[arg(short, long)]
     max_age: usize,
 
     /// server ip
