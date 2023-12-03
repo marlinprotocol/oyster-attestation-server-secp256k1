@@ -1,5 +1,5 @@
 [package]
-name = "oyster-utility"
+name = "oyster-attestation-utility"
 version = "0.1.0"
 edition = "2021"
 
