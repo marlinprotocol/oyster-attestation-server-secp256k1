@@ -14,9 +14,9 @@ struct Cli {
     #[arg(short, long)]
     enclaveprivatekey: String,
 
-    /// path to secp private key file
+    /// path to secp256k1 private key file
     #[arg(short, long)]
-    secpprivatekey: String,
+    secp256k1privatekey: String,
 
     /// attestation endpoint
     #[arg(short, long)]
@@ -39,16 +39,18 @@ struct Cli {
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
     let enclave_private_key = fs::read(cli.enclaveprivatekey.clone())?;
-    let secp_private_key = fs::read(cli.secpprivatekey.clone())?;
-    let secp_private_key = secp256k1::SecretKey::from_slice(&secp_private_key)?;
-    let secp = secp256k1::Secp256k1::new();
-    let secp_public_key = secp_private_key.public_key(&secp).serialize_uncompressed();
+    let secp256k1_private_key = fs::read(cli.secp256k1privatekey.clone())?;
+    let secp256k1_private_key = secp256k1::SecretKey::from_slice(&secp256k1_private_key)?;
+    let secp256k1 = secp256k1::Secp256k1::new();
+    let secp256k1_public_key = secp256k1_private_key
+        .public_key(&secp256k1)
+        .serialize_uncompressed();
     let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestationport);
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {
                 enclave_private_key: enclave_private_key.clone(),
-                secp_public_key: secp_public_key.clone(),
+                secp256k1_public_key: secp256k1_public_key.clone(),
                 attestation_uri: attestation_server_uri.clone(),
                 max_age: cli.max_age.clone(),
             }))

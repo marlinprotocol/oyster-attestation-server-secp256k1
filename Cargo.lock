@@ -1201,6 +1201,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "oyster-attestation-utility"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "clap",
+ "derive_more",
+ "hex",
+ "libsodium-sys-stable",
+ "oyster-sdk",
+ "secp256k1",
+ "serde",
+ "serde_with 3.4.0",
+ "sha256",
+]
+
+[[package]]
 name = "oyster-sdk"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1220,22 +1236,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tower",
-]
-
-[[package]]
-name = "oyster-utility"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "clap",
- "derive_more",
- "hex",
- "libsodium-sys-stable",
- "oyster-sdk",
- "secp256k1",
- "serde",
- "serde_with 3.4.0",
- "sha256",
 ]
 
 [[package]]
