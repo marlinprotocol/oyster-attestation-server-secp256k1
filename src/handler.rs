@@ -1,4 +1,4 @@
-use crate::types::handlers::AppState;
+use crate::types::AppState;
 use actix_web::{error, http::StatusCode, post, web, Responder};
 use derive_more::{Display, Error};
 use hex;

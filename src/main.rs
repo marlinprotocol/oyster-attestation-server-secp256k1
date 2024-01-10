@@ -2,11 +2,11 @@ use actix_web::{web, App, HttpServer};
 use std::error::Error;
 use std::fs;
 
-mod handlers;
+mod handler;
 mod types;
 
 use clap::Parser;
-use types::handlers::AppState;
+use types::AppState;
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
@@ -54,7 +54,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 attestation_uri: attestation_server_uri.clone(),
                 max_age: cli.max_age.clone(),
             }))
-            .service(handlers::attestation_sig::build_attestation_verification)
+            .service(handler::build_attestation_verification)
     })
     .bind((cli.ip.clone(), cli.port))?
     .run();
