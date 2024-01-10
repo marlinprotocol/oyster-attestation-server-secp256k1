@@ -12,15 +12,15 @@ use types::AppState;
 struct Cli {
     /// path to enclave private key file
     #[arg(short, long)]
-    enclaveprivatekey: String,
+    ed25519_secret: String,
 
     /// path to secp256k1 private key file
     #[arg(short, long)]
-    secp256k1privatekey: String,
+    secp256k1_secret: String,
 
     /// attestation endpoint
     #[arg(short, long)]
-    attestationport: u16,
+    attestation_port: u16,
 
     ///max age of attestation
     #[arg(short, long)]
@@ -38,14 +38,14 @@ struct Cli {
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
-    let enclave_private_key = fs::read(cli.enclaveprivatekey.clone())?;
-    let secp256k1_private_key = fs::read(cli.secp256k1privatekey.clone())?;
+    let enclave_private_key = fs::read(cli.ed25519_secret.clone())?;
+    let secp256k1_private_key = fs::read(cli.secp256k1_secret.clone())?;
     let secp256k1_private_key = secp256k1::SecretKey::from_slice(&secp256k1_private_key)?;
     let secp256k1 = secp256k1::Secp256k1::new();
     let secp256k1_public_key = secp256k1_private_key
         .public_key(&secp256k1)
         .serialize_uncompressed();
-    let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestationport);
+    let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {
