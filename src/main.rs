@@ -45,8 +45,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {
-                enclave_private_key: enclave_private_key.clone(),
-                secp256k1_public_key: secp256k1_public_key.clone(),
+                ed25519_secret: enclave_private_key.clone(),
+                secp256k1_public: secp256k1_public_key.clone(),
                 attestation_uri: attestation_server_uri.clone(),
                 max_age: cli.max_age.clone(),
             }))

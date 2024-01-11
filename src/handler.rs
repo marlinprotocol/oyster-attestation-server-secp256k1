@@ -53,7 +53,7 @@ async fn build_attestation_verification(
     req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
 ) -> actix_web::Result<impl Responder, UserError> {
-    let msg_to_sign = verification_message(&hex::encode(&state.secp256k1_public_key));
+    let msg_to_sign = verification_message(&hex::encode(&state.secp256k1_public));
     let mut sig = [0u8; 64];
     unsafe {
         let is_signed = crypto_sign_detached(
@@ -61,7 +61,7 @@ async fn build_attestation_verification(
             std::ptr::null_mut(),
             msg_to_sign.as_ptr(),
             msg_to_sign.len() as u64,
-            state.enclave_private_key.as_ptr(),
+            state.ed25519_secret.as_ptr(),
         );
         if is_signed != 0 {
             panic!("not signed");
@@ -87,6 +87,6 @@ async fn build_attestation_verification(
         min_mem: decoded_attestation.total_memory,
         max_age: req.max_age.unwrap_or(state.max_age),
         signature: hex::encode(sig),
-        secp256k1_key: hex::encode(&state.secp256k1_public_key),
+        secp256k1_key: hex::encode(&state.secp256k1_public),
     }))
 }
