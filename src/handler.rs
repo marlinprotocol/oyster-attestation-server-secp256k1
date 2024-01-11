@@ -43,7 +43,7 @@ impl error::ResponseError for UserError {
     }
 }
 
-fn verification_message(pubkey: &String) -> String {
+fn verification_message(pubkey: &str) -> String {
     const PREFIX: &str = "attestation-verification-";
     format!("{}{:?}", PREFIX.to_string(), pubkey)
 }
