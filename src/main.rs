@@ -14,9 +14,9 @@ struct Cli {
     #[arg(short, long)]
     ed25519_secret: String,
 
-    /// path to secp256k1 private key file
+    /// path to secp256k1 public key file
     #[arg(short, long)]
-    secp256k1_secret: String,
+    secp256k1_public: String,
 
     /// attestation endpoint
     #[arg(short, long)]
@@ -39,12 +39,8 @@ struct Cli {
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
     let enclave_private_key = fs::read(cli.ed25519_secret.clone())?;
-    let secp256k1_private_key = fs::read(cli.secp256k1_secret.clone())?;
-    let secp256k1_private_key = secp256k1::SecretKey::from_slice(&secp256k1_private_key)?;
-    let secp256k1 = secp256k1::Secp256k1::new();
-    let secp256k1_public_key = secp256k1_private_key
-        .public_key(&secp256k1)
-        .serialize_uncompressed();
+    let secp256k1_public_key: [u8; 65] =
+        fs::read(cli.secp256k1_public.clone())?[0..65].try_into()?;
     let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
     let server = HttpServer::new(move || {
         App::new()
