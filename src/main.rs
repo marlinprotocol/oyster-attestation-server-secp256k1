@@ -38,9 +38,9 @@ struct Cli {
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
-    let enclave_private_key = fs::read(cli.ed25519_secret.clone())?;
+    let enclave_private_key: [u8; 32] = fs::read(cli.ed25519_secret.clone())?[..32].try_into()?;
     let secp256k1_public_key: [u8; 65] =
-        fs::read(cli.secp256k1_public.clone())?[0..65].try_into()?;
+        fs::read(cli.secp256k1_public.clone())?[..65].try_into()?;
     let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
     let server = HttpServer::new(move || {
         App::new()
