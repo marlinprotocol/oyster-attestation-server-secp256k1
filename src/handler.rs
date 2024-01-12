@@ -26,7 +26,16 @@ struct AttestationVerificationBuilderRequest {
 
 #[derive(Debug, Display, Error)]
 pub enum UserError {
-    InternalServerError,
+    #[display(fmt = "error which encoding signature")]
+    SignatureEncodingError,
+    #[display(fmt = "error while signing signature")]
+    SigningError,
+    #[display(fmt = "error while parsing attestation uri")]
+    UriParseError,
+    #[display(fmt = "error while fetching attestation document")]
+    AttestationFetchError,
+    #[display(fmt = "error while decoding attestation document")]
+    AttestationDecodeError,
 }
 
 impl error::ResponseError for UserError {
@@ -37,9 +46,7 @@ impl error::ResponseError for UserError {
     }
 
     fn status_code(&self) -> actix_web::http::StatusCode {
-        match self {
-            UserError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-        }
+        StatusCode::INTERNAL_SERVER_ERROR
     }
 }
 
@@ -52,7 +59,7 @@ async fn build_attestation_verification(
         ethers::abi::Token::String("attestation-verification-".to_string()),
         ethers::abi::Token::Bytes(state.secp256k1_public.to_vec()),
     ])
-    .map_err(|_| UserError::InternalServerError)?;
+    .map_err(|_| UserError::SignatureEncodingError)?;
 
     let mut sig = [0u8; 64];
     unsafe {
@@ -64,7 +71,7 @@ async fn build_attestation_verification(
             state.ed25519_secret.as_ptr(),
         );
         if is_signed != 0 {
-            panic!("not signed");
+            return Err(UserError::SigningError);
         }
     }
 
@@ -72,13 +79,13 @@ async fn build_attestation_verification(
         state
             .attestation_uri
             .parse()
-            .map_err(|_| UserError::InternalServerError)?,
+            .map_err(|_| UserError::UriParseError)?,
     )
     .await
-    .map_err(|_| UserError::InternalServerError)?;
+    .map_err(|_| UserError::AttestationFetchError)?;
 
     let decoded_attestation = oyster::decode_attestation(attestation_doc.clone())
-        .map_err(|_| UserError::InternalServerError)?;
+        .map_err(|_| UserError::AttestationDecodeError)?;
 
     Ok(web::Json(AttestationVerificationBuilderResponse {
         attestation_doc: hex::encode(attestation_doc),
