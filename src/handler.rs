@@ -26,7 +26,7 @@ struct AttestationVerificationBuilderRequest {
 
 #[derive(Debug, Display, Error)]
 pub enum UserError {
-    #[display(fmt = "error which encoding signature")]
+    #[display(fmt = "error while encoding signature")]
     SignatureEncodingError,
     #[display(fmt = "error while signing signature")]
     SigningError,
