@@ -1,10 +1,10 @@
 use actix_web::{web, App, HttpServer};
-use std::error::Error;
 use std::fs;
 
 mod handler;
 mod types;
 
+use anyhow::{Context, Result};
 use clap::Parser;
 use types::AppState;
 #[derive(Parser)]
@@ -36,11 +36,22 @@ struct Cli {
 }
 
 #[actix_web::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let enclave_private_key: [u8; 32] = fs::read(cli.ed25519_secret.clone())?[..32].try_into()?;
+    let enclave_private_key: [u8; 32] = fs::read(cli.ed25519_secret.clone())
+        .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?
+        [..32]
+        .try_into()
+        .context("invalid ed25519_secret")?;
     let secp256k1_public_key: [u8; 65] =
-        fs::read(cli.secp256k1_public.clone())?[..65].try_into()?;
+        fs::read(cli.secp256k1_public.clone()).with_context(|| {
+            format!(
+                "Failed to read secp256k1_public from {}",
+                cli.secp256k1_public
+            )
+        })?[..65]
+            .try_into()
+            .context("invalid secp256k1_public")?;
     let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
     let server = HttpServer::new(move || {
         App::new()
@@ -52,9 +63,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }))
             .service(handler::build_attestation_verification)
     })
-    .bind((cli.ip.clone(), cli.port))?
+    .bind((cli.ip.clone(), cli.port))
+    .context("unable to start the server")?
     .run();
     println!("oyster-utility running at {}:{}", cli.ip, cli.port);
-    server.await?;
+    server.await.context("error while running server")?;
     Ok(())
 }
