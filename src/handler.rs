@@ -43,17 +43,17 @@ impl error::ResponseError for UserError {
     }
 }
 
-fn verification_message(pubkey: &str) -> String {
-    const PREFIX: &str = "attestation-verification-";
-    format!("{}{:?}", PREFIX.to_string(), pubkey)
-}
-
 #[post("/build/attestation")]
 async fn build_attestation_verification(
     req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
 ) -> actix_web::Result<impl Responder, UserError> {
-    let msg_to_sign = verification_message(&hex::encode(&state.secp256k1_public));
+    let msg_to_sign = ethers::abi::encode_packed(&[
+        ethers::abi::Token::String("attestation-verification-".to_string()),
+        ethers::abi::Token::Bytes(state.secp256k1_public.to_vec()),
+    ])
+    .map_err(|_| UserError::InternalServerError)?;
+
     let mut sig = [0u8; 64];
     unsafe {
         let is_signed = crypto_sign_detached(
