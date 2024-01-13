@@ -1,4 +1,4 @@
-use crate::types::handlers::AppState;
+use crate::types::AppState;
 use actix_web::{error, http::StatusCode, post, web, Responder};
 use derive_more::{Display, Error};
 use hex;
@@ -16,7 +16,7 @@ struct AttestationVerificationBuilderResponse {
     min_mem: usize,
     max_age: usize,
     signature: String,
-    secp_key: String,
+    secp256k1_key: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -26,7 +26,16 @@ struct AttestationVerificationBuilderRequest {
 
 #[derive(Debug, Display, Error)]
 pub enum UserError {
-    InternalServerError,
+    #[display(fmt = "error while encoding signature")]
+    SignatureEncodingError,
+    #[display(fmt = "error while signing signature")]
+    SigningError,
+    #[display(fmt = "error while parsing attestation uri")]
+    UriParseError,
+    #[display(fmt = "error while fetching attestation document")]
+    AttestationFetchError,
+    #[display(fmt = "error while decoding attestation document")]
+    AttestationDecodeError,
 }
 
 impl error::ResponseError for UserError {
@@ -37,15 +46,8 @@ impl error::ResponseError for UserError {
     }
 
     fn status_code(&self) -> actix_web::http::StatusCode {
-        match self {
-            UserError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-        }
+        StatusCode::INTERNAL_SERVER_ERROR
     }
-}
-
-fn verification_message(pubkey: &String) -> String {
-    const PREFIX: &str = "attestation-verification-";
-    format!("{}{:?}", PREFIX.to_string(), pubkey)
 }
 
 #[post("/build/attestation")]
@@ -53,7 +55,12 @@ async fn build_attestation_verification(
     req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
 ) -> actix_web::Result<impl Responder, UserError> {
-    let msg_to_sign = verification_message(&hex::encode(&state.secp_public_key));
+    let msg_to_sign = ethers::abi::encode_packed(&[
+        ethers::abi::Token::String("attestation-verification-".to_string()),
+        ethers::abi::Token::Bytes(state.secp256k1_public.to_vec()),
+    ])
+    .map_err(|_| UserError::SignatureEncodingError)?;
+
     let mut sig = [0u8; 64];
     unsafe {
         let is_signed = crypto_sign_detached(
@@ -61,10 +68,10 @@ async fn build_attestation_verification(
             std::ptr::null_mut(),
             msg_to_sign.as_ptr(),
             msg_to_sign.len() as u64,
-            state.enclave_private_key.as_ptr(),
+            state.ed25519_secret.as_ptr(),
         );
         if is_signed != 0 {
-            panic!("not signed");
+            return Err(UserError::SigningError);
         }
     }
 
@@ -72,13 +79,13 @@ async fn build_attestation_verification(
         state
             .attestation_uri
             .parse()
-            .map_err(|_| UserError::InternalServerError)?,
+            .map_err(|_| UserError::UriParseError)?,
     )
     .await
-    .map_err(|_| UserError::InternalServerError)?;
+    .map_err(|_| UserError::AttestationFetchError)?;
 
     let decoded_attestation = oyster::decode_attestation(attestation_doc.clone())
-        .map_err(|_| UserError::InternalServerError)?;
+        .map_err(|_| UserError::AttestationDecodeError)?;
 
     Ok(web::Json(AttestationVerificationBuilderResponse {
         attestation_doc: hex::encode(attestation_doc),
@@ -87,6 +94,6 @@ async fn build_attestation_verification(
         min_mem: decoded_attestation.total_memory,
         max_age: req.max_age.unwrap_or(state.max_age),
         signature: hex::encode(sig),
-        secp_key: hex::encode(&state.secp_public_key),
+        secp256k1_key: hex::encode(&state.secp256k1_public),
     }))
 }
