@@ -1,9 +1,10 @@
 use crate::types::AppState;
+
 use actix_web::{error, http::StatusCode, post, web, Responder};
-use derive_more::{Display, Error};
 use libsodium_sys::crypto_sign_detached;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use thiserror::Error;
 
 #[serde_as]
 #[derive(Deserialize, Serialize)]
@@ -22,17 +23,17 @@ struct AttestationVerificationBuilderRequest {
     max_age: Option<usize>,
 }
 
-#[derive(Debug, Display, Error)]
+#[derive(Debug, Error)]
 pub enum UserError {
-    #[display(fmt = "error while encoding signature")]
+    #[error("error while encoding signature")]
     SignatureEncoding,
-    #[display(fmt = "error while signing signature")]
+    #[error("error while signing signature")]
     Signing,
-    #[display(fmt = "error while parsing attestation uri")]
+    #[error("error while parsing attestation uri")]
     UriParse,
-    #[display(fmt = "error while fetching attestation document")]
+    #[error("error while fetching attestation document")]
     AttestationFetch,
-    #[display(fmt = "error while decoding attestation document")]
+    #[error("error while decoding attestation document")]
     AttestationDecode,
 }
 
