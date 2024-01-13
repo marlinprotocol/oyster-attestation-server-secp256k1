@@ -1,12 +1,14 @@
-use actix_web::{web, App, HttpServer};
-use std::fs;
-
 mod handler;
 mod types;
 
+use std::fs;
+
+use actix_web::{web, App, HttpServer};
 use anyhow::{Context, Result};
 use clap::Parser;
+
 use types::AppState;
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
