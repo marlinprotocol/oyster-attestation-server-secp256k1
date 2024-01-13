@@ -17,3 +17,4 @@ sha256 = "1.4.0"
 clap = {version = "4.4.6", features = ["derive"]}
 ethers = "2.0.11"
 anyhow = "1.0.79"
+thiserror = "1.0.56"
