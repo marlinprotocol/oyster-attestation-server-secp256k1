@@ -2492,7 +2492,6 @@ dependencies = [
  "actix-web",
  "anyhow",
  "clap",
- "derive_more",
  "ethers",
  "hex",
  "libsodium-sys-stable",
