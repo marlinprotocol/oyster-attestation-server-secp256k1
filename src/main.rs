@@ -41,15 +41,18 @@ struct Cli {
 async fn main() -> Result<()> {
     let cli = Cli::parse();
     let ed25519_secret: [u8; 32] = fs::read(cli.ed25519_secret.clone())
-        .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?[..]
+        .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?
+        .as_slice()
         .try_into()
         .context("invalid ed25519_secret")?;
-    let secp256k1_public: [u8; 65] = fs::read(cli.secp256k1_public.clone()).with_context(|| {
-        format!(
-            "Failed to read secp256k1_public from {}",
-            cli.secp256k1_public
-        )
-    })?[..]
+    let secp256k1_public: [u8; 65] = fs::read(cli.secp256k1_public.clone())
+        .with_context(|| {
+            format!(
+                "Failed to read secp256k1_public from {}",
+                cli.secp256k1_public
+            )
+        })?
+        .as_slice()
         .try_into()
         .context("invalid secp256k1_public")?;
     let attestation_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
