@@ -3,10 +3,8 @@ use crate::types::AppState;
 use actix_web::{error, http::StatusCode, post, web, Responder};
 use libsodium_sys::crypto_sign_detached;
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
 use thiserror::Error;
 
-#[serde_as]
 #[derive(Deserialize, Serialize)]
 struct AttestationVerificationBuilderResponse {
     attestation_doc: String,
