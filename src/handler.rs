@@ -1,9 +1,7 @@
 use crate::types::AppState;
 use actix_web::{error, http::StatusCode, post, web, Responder};
 use derive_more::{Display, Error};
-use hex;
 use libsodium_sys::crypto_sign_detached;
-use oyster;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
@@ -27,15 +25,15 @@ struct AttestationVerificationBuilderRequest {
 #[derive(Debug, Display, Error)]
 pub enum UserError {
     #[display(fmt = "error while encoding signature")]
-    SignatureEncodingError,
+    SignatureEncoding,
     #[display(fmt = "error while signing signature")]
-    SigningError,
+    Signing,
     #[display(fmt = "error while parsing attestation uri")]
-    UriParseError,
+    UriParse,
     #[display(fmt = "error while fetching attestation document")]
-    AttestationFetchError,
+    AttestationFetch,
     #[display(fmt = "error while decoding attestation document")]
-    AttestationDecodeError,
+    AttestationDecode,
 }
 
 impl error::ResponseError for UserError {
@@ -59,7 +57,7 @@ async fn build_attestation_verification(
         ethers::abi::Token::String("attestation-verification-".to_string()),
         ethers::abi::Token::Bytes(state.secp256k1_public.to_vec()),
     ])
-    .map_err(|_| UserError::SignatureEncodingError)?;
+    .map_err(|_| UserError::SignatureEncoding)?;
 
     let mut sig = [0u8; 64];
     unsafe {
@@ -71,7 +69,7 @@ async fn build_attestation_verification(
             state.ed25519_secret.as_ptr(),
         );
         if is_signed != 0 {
-            return Err(UserError::SigningError);
+            return Err(UserError::Signing);
         }
     }
 
@@ -79,13 +77,13 @@ async fn build_attestation_verification(
         state
             .attestation_uri
             .parse()
-            .map_err(|_| UserError::UriParseError)?,
+            .map_err(|_| UserError::UriParse)?,
     )
     .await
-    .map_err(|_| UserError::AttestationFetchError)?;
+    .map_err(|_| UserError::AttestationFetch)?;
 
     let decoded_attestation = oyster::decode_attestation(attestation_doc.clone())
-        .map_err(|_| UserError::AttestationDecodeError)?;
+        .map_err(|_| UserError::AttestationDecode)?;
 
     Ok(web::Json(AttestationVerificationBuilderResponse {
         attestation_doc: hex::encode(attestation_doc),
@@ -94,6 +92,6 @@ async fn build_attestation_verification(
         min_mem: decoded_attestation.total_memory,
         max_age: req.max_age.unwrap_or(state.max_age),
         signature: hex::encode(sig),
-        secp256k1_key: hex::encode(&state.secp256k1_public),
+        secp256k1_key: hex::encode(state.secp256k1_public),
     }))
 }

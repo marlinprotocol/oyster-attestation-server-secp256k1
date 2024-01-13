@@ -56,10 +56,10 @@ async fn main() -> Result<()> {
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {
-                ed25519_secret: ed25519_secret.clone(),
-                secp256k1_public: secp256k1_public.clone(),
+                ed25519_secret,
+                secp256k1_public,
                 attestation_uri: attestation_server_uri.clone(),
-                max_age: cli.max_age.clone(),
+                max_age: cli.max_age,
             }))
             .service(handler::build_attestation_verification)
     })
