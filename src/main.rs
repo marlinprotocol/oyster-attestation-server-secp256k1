@@ -50,7 +50,7 @@ async fn main() -> Result<()> {
                 "Failed to read secp256k1_public from {}",
                 cli.secp256k1_public
             )
-        })?[..65]
+        })?[..]
             .try_into()
             .context("invalid secp256k1_public")?;
     let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
