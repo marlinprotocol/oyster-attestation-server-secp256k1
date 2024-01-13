@@ -41,8 +41,7 @@ struct Cli {
 async fn main() -> Result<()> {
     let cli = Cli::parse();
     let enclave_private_key: [u8; 32] = fs::read(cli.ed25519_secret.clone())
-        .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?
-        [..32]
+        .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?[..]
         .try_into()
         .context("invalid ed25519_secret")?;
     let secp256k1_public_key: [u8; 65] =
