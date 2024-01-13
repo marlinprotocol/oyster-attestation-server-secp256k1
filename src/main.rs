@@ -52,13 +52,13 @@ async fn main() -> Result<()> {
     })?[..]
         .try_into()
         .context("invalid secp256k1_public")?;
-    let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
+    let attestation_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {
                 ed25519_secret,
                 secp256k1_public,
-                attestation_uri: attestation_server_uri.clone(),
+                attestation_uri: attestation_uri.clone(),
                 max_age: cli.max_age,
             }))
             .service(handler::build_attestation_verification)
