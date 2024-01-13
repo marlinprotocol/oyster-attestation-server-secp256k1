@@ -9,7 +9,6 @@ edition = "2021"
 actix-web = "4.4.0"
 libsodium-sys-stable = "1.19.30"
 serde = {version = "1.0.152", features = ["derive"]}
-serde_with = "3.3.0"
 oyster-sdk = "0.5.1"
 hex = "0.4.3"
 sha256 = "1.4.0"
