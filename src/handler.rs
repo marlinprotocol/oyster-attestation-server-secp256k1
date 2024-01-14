@@ -52,11 +52,8 @@ async fn build_attestation_verification(
     req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
 ) -> actix_web::Result<impl Responder, UserError> {
-    let msg_to_sign = ethers::abi::encode_packed(&[
-        ethers::abi::Token::String("attestation-verification-".to_string()),
-        ethers::abi::Token::Bytes(state.secp256k1_public.to_vec()),
-    ])
-    .map_err(|_| UserError::SignatureEncoding)?;
+    let mut msg_to_sign = "attestation-verification-".to_owned().into_bytes();
+    msg_to_sign.extend_from_slice(&state.secp256k1_public);
 
     let mut sig = [0u8; 64];
     unsafe {
