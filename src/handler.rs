@@ -1,4 +1,4 @@
-use actix_web::{error, http::StatusCode, post, web, Responder};
+use actix_web::{error, get, http::StatusCode, web, Responder};
 use libsodium_sys::crypto_sign_detached;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -50,7 +50,7 @@ impl error::ResponseError for UserError {
     }
 }
 
-#[post("/attestation")]
+#[get("/attestation")]
 async fn build_attestation_verification(
     req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
