@@ -7,7 +7,6 @@ pub struct AppState {
     pub ed25519_secret: [u8; 64],
     pub secp256k1_public: [u8; 65],
     pub attestation_uri: String,
-    pub max_age: usize,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -16,15 +15,12 @@ struct AttestationVerificationBuilderResponse {
     pcrs: Vec<String>,
     min_cpus: usize,
     min_mem: usize,
-    max_age: usize,
     signature: String,
     secp256k1_key: String,
 }
 
 #[derive(Serialize, Deserialize)]
-struct AttestationVerificationBuilderRequest {
-    max_age: Option<usize>,
-}
+struct AttestationVerificationBuilderRequest {}
 
 #[derive(Debug, Error)]
 pub enum UserError {
@@ -52,7 +48,6 @@ impl error::ResponseError for UserError {
 
 #[get("/attestation")]
 async fn build_attestation_verification(
-    req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
 ) -> actix_web::Result<impl Responder, UserError> {
     let mut msg_to_sign = "attestation-verification-".to_owned().into_bytes();
@@ -89,7 +84,6 @@ async fn build_attestation_verification(
         pcrs: decoded_attestation.pcrs,
         min_cpus: decoded_attestation.total_cpus,
         min_mem: decoded_attestation.total_memory,
-        max_age: req.max_age.unwrap_or(state.max_age),
         signature: hex::encode(sig),
         secp256k1_key: hex::encode(state.secp256k1_public),
     }))

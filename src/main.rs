@@ -23,10 +23,6 @@ struct Cli {
     #[arg(short, long)]
     attestation_port: u16,
 
-    ///max age of attestation
-    #[arg(short, long)]
-    max_age: usize,
-
     /// server ip
     #[arg(short, long, default_value = "127.0.0.1")]
     ip: String,
@@ -61,7 +57,6 @@ async fn main() -> Result<()> {
                 ed25519_secret,
                 secp256k1_public,
                 attestation_uri: attestation_uri.clone(),
-                max_age: cli.max_age,
             }))
             .service(handler::build_attestation_verification)
     })
