@@ -7,7 +7,7 @@ use actix_web::{web, App, HttpServer};
 use anyhow::{Context, Result};
 use clap::Parser;
 
-use types::AppState;
+use handler::AppState;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
