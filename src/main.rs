@@ -1,5 +1,4 @@
 mod handler;
-mod types;
 
 use std::fs;
 
