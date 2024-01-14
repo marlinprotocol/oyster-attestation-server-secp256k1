@@ -23,8 +23,6 @@ struct AttestationVerificationBuilderRequest {
 
 #[derive(Debug, Error)]
 pub enum UserError {
-    #[error("error while encoding signature")]
-    SignatureEncoding,
     #[error("error while signing signature")]
     Signing,
     #[error("error while parsing attestation uri")]
