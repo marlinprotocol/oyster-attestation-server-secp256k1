@@ -39,7 +39,7 @@ struct Cli {
 #[actix_web::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let ed25519_secret: [u8; 32] = fs::read(cli.ed25519_secret.clone())
+    let ed25519_secret: [u8; 64] = fs::read(cli.ed25519_secret.clone())
         .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?
         .as_slice()
         .try_into()
