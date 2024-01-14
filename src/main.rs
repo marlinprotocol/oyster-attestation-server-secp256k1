@@ -28,11 +28,11 @@ struct Cli {
     max_age: usize,
 
     /// server ip
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "127.0.0.1")]
     ip: String,
 
     /// server port
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "1301")]
     port: u16,
 }
 
