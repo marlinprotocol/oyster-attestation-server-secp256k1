@@ -50,7 +50,7 @@ impl error::ResponseError for UserError {
     }
 }
 
-#[post("/build/attestation")]
+#[post("/attestation")]
 async fn build_attestation_verification(
     req: web::Json<AttestationVerificationBuilderRequest>,
     state: web::Data<AppState>,
