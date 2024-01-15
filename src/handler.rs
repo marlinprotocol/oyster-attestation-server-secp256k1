@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use actix_web::{
     error, get,
     http::{uri::InvalidUri, StatusCode},
@@ -26,7 +28,7 @@ struct AttestationVerificationBuilderResponse {
 #[derive(Serialize, Deserialize)]
 struct AttestationVerificationBuilderRequest {}
 
-#[derive(Debug, Error)]
+#[derive(Error)]
 pub enum UserError {
     #[error("error while signing signature")]
     Signing,
@@ -47,6 +49,27 @@ impl error::ResponseError for UserError {
 
     fn status_code(&self) -> actix_web::http::StatusCode {
         StatusCode::INTERNAL_SERVER_ERROR
+    }
+}
+
+impl std::fmt::Debug for UserError {
+    // pretty print like anyhow
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)?;
+
+        if self.source().is_some() {
+            write!(f, "\n\nCaused by:\n")?;
+        }
+
+        let mut err: &dyn Error = self;
+        loop {
+            let Some(source) = err.source() else { break };
+            write!(f, "\t{}\n", source)?;
+
+            err = source;
+        }
+
+        Ok(())
     }
 }
 
