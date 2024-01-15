@@ -55,13 +55,13 @@ impl std::fmt::Debug for UserError {
         write!(f, "{}", self)?;
 
         if self.source().is_some() {
-            write!(f, "\n\nCaused by:\n")?;
+            writeln!(f, "\n\nCaused by:")?;
         }
 
         let mut err: &dyn Error = self;
         loop {
             let Some(source) = err.source() else { break };
-            write!(f, "\t{}\n", source)?;
+            writeln!(f, "\t{}", source)?;
 
             err = source;
         }
