@@ -2,7 +2,7 @@ use std::error::Error;
 
 use actix_web::{
     error, get,
-    http::{uri::InvalidUri, StatusCode, Uri},
+    http::{StatusCode, Uri},
     web, Responder,
 };
 use libsodium_sys::crypto_sign_detached;
@@ -29,8 +29,6 @@ struct AttestationVerificationBuilderResponse {
 pub enum UserError {
     #[error("error while signing signature")]
     Signing,
-    #[error("error while parsing attestation uri")]
-    UriParse(#[source] InvalidUri),
     #[error("error while fetching attestation document")]
     AttestationFetch(#[source] oyster::AttestationError),
     #[error("error while decoding attestation document")]
