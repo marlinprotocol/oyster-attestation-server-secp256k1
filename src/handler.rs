@@ -42,7 +42,7 @@ impl error::ResponseError for UserError {
     fn error_response(&self) -> actix_web::HttpResponse<actix_web::body::BoxBody> {
         actix_web::HttpResponse::build(self.status_code())
             .insert_header(actix_web::http::header::ContentType::plaintext())
-            .body(self.to_string())
+            .body(format!("{self:?}"))
     }
 
     fn status_code(&self) -> actix_web::http::StatusCode {
