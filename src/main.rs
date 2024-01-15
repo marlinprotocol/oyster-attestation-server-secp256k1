@@ -1,12 +1,13 @@
-use actix_web::{web, App, HttpServer};
+mod handler;
+
 use std::fs;
 
-mod handler;
-mod types;
-
+use actix_web::{web, App, HttpServer};
 use anyhow::{Context, Result};
 use clap::Parser;
-use types::AppState;
+
+use handler::AppState;
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
@@ -22,44 +23,40 @@ struct Cli {
     #[arg(short, long)]
     attestation_port: u16,
 
-    ///max age of attestation
-    #[arg(short, long)]
-    max_age: usize,
-
     /// server ip
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "127.0.0.1")]
     ip: String,
 
     /// server port
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "1301")]
     port: u16,
 }
 
 #[actix_web::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let enclave_private_key: [u8; 32] = fs::read(cli.ed25519_secret.clone())
+    let ed25519_secret: [u8; 64] = fs::read(cli.ed25519_secret.clone())
         .with_context(|| format!("Failed to read ed25519_secret from {}", cli.ed25519_secret))?
-        [..32]
+        .as_slice()
         .try_into()
         .context("invalid ed25519_secret")?;
-    let secp256k1_public_key: [u8; 65] =
-        fs::read(cli.secp256k1_public.clone()).with_context(|| {
+    let secp256k1_public: [u8; 65] = fs::read(cli.secp256k1_public.clone())
+        .with_context(|| {
             format!(
                 "Failed to read secp256k1_public from {}",
                 cli.secp256k1_public
             )
-        })?[..65]
-            .try_into()
-            .context("invalid secp256k1_public")?;
-    let attestation_server_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
+        })?
+        .as_slice()
+        .try_into()
+        .context("invalid secp256k1_public")?;
+    let attestation_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {
-                ed25519_secret: enclave_private_key.clone(),
-                secp256k1_public: secp256k1_public_key.clone(),
-                attestation_uri: attestation_server_uri.clone(),
-                max_age: cli.max_age.clone(),
+                ed25519_secret,
+                secp256k1_public,
+                attestation_uri: attestation_uri.clone(),
             }))
             .service(handler::build_attestation_verification)
     })

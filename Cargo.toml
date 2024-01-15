@@ -3,17 +3,12 @@ name = "oyster-attestation-utility"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 actix-web = "4.4.0"
-derive_more = "0.99.17"
-libsodium-sys-stable = "1.19.30"
-serde = {version = "1.0.152", features = ["derive"]}
-serde_with = "3.3.0"
-oyster-sdk = "0.5.1"
-hex = "0.4.3"
-sha256 = "1.4.0"
-clap = {version = "4.4.6", features = ["derive"]}
-ethers = "2.0.11"
 anyhow = "1.0.79"
+clap = { version = "4.4.6", features = ["derive"] }
+hex = "0.4.3"
+libsodium-sys-stable = "1.19.30"
+oyster-sdk = "0.6.1"
+serde = { version = "1.0.152", features = ["derive"] }
+thiserror = "1.0.56"
