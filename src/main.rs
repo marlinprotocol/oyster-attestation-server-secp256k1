@@ -2,7 +2,7 @@ mod handler;
 
 use std::fs;
 
-use actix_web::{web, App, HttpServer};
+use actix_web::{http::Uri, web, App, HttpServer};
 use anyhow::{Context, Result};
 use clap::Parser;
 
@@ -50,7 +50,8 @@ async fn main() -> Result<()> {
         .as_slice()
         .try_into()
         .context("invalid secp256k1_public")?;
-    let attestation_uri = format!("http://127.0.0.1:{}/", cli.attestation_port);
+    let attestation_uri: Uri = format!("http://127.0.0.1:{}/", cli.attestation_port).parse()?;
+
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState {

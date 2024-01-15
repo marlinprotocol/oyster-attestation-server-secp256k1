@@ -2,7 +2,7 @@ use std::error::Error;
 
 use actix_web::{
     error, get,
-    http::{uri::InvalidUri, StatusCode},
+    http::{uri::InvalidUri, StatusCode, Uri},
     web, Responder,
 };
 use libsodium_sys::crypto_sign_detached;
@@ -12,7 +12,7 @@ use thiserror::Error;
 pub struct AppState {
     pub ed25519_secret: [u8; 64],
     pub secp256k1_public: [u8; 65],
-    pub attestation_uri: String,
+    pub attestation_uri: Uri,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -91,10 +91,9 @@ async fn build_attestation_verification(
         }
     }
 
-    let attestation_doc =
-        oyster::get_attestation_doc(state.attestation_uri.parse().map_err(UserError::UriParse)?)
-            .await
-            .map_err(UserError::AttestationFetch)?;
+    let attestation_doc = oyster::get_attestation_doc(state.attestation_uri.clone())
+        .await
+        .map_err(UserError::AttestationFetch)?;
 
     let decoded_attestation = oyster::decode_attestation(attestation_doc.clone())
         .map_err(UserError::AttestationDecode)?;
