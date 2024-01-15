@@ -25,9 +25,6 @@ struct AttestationVerificationBuilderResponse {
     secp256k1_key: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct AttestationVerificationBuilderRequest {}
-
 #[derive(Error)]
 pub enum UserError {
     #[error("error while signing signature")]
