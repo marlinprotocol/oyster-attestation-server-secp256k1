@@ -1,4 +1,8 @@
-use actix_web::{error, get, http::StatusCode, web, Responder};
+use actix_web::{
+    error, get,
+    http::{uri::InvalidUri, StatusCode},
+    web, Responder,
+};
 use libsodium_sys::crypto_sign_detached;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -27,11 +31,11 @@ pub enum UserError {
     #[error("error while signing signature")]
     Signing,
     #[error("error while parsing attestation uri")]
-    UriParse,
+    UriParse(#[source] InvalidUri),
     #[error("error while fetching attestation document")]
-    AttestationFetch,
+    AttestationFetch(#[source] oyster::AttestationError),
     #[error("error while decoding attestation document")]
-    AttestationDecode,
+    AttestationDecode(#[source] oyster::AttestationError),
 }
 
 impl error::ResponseError for UserError {
