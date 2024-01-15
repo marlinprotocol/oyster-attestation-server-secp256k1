@@ -71,17 +71,13 @@ async fn build_attestation_verification(
         }
     }
 
-    let attestation_doc = oyster::get_attestation_doc(
-        state
-            .attestation_uri
-            .parse()
-            .map_err(|_| UserError::UriParse)?,
-    )
-    .await
-    .map_err(|_| UserError::AttestationFetch)?;
+    let attestation_doc =
+        oyster::get_attestation_doc(state.attestation_uri.parse().map_err(UserError::UriParse)?)
+            .await
+            .map_err(UserError::AttestationFetch)?;
 
     let decoded_attestation = oyster::decode_attestation(attestation_doc.clone())
-        .map_err(|_| UserError::AttestationDecode)?;
+        .map_err(UserError::AttestationDecode)?;
 
     Ok(web::Json(AttestationVerificationBuilderResponse {
         attestation_doc: hex::encode(attestation_doc),
