@@ -64,7 +64,9 @@ async fn main() -> Result<()> {
     .bind((cli.ip.clone(), cli.port))
     .context("unable to start the server")?
     .run();
-    println!("oyster-utility running at {}:{}", cli.ip, cli.port);
+
+    println!("server running at {}:{}", cli.ip, cli.port);
     server.await.context("error while running server")?;
+
     Ok(())
 }
