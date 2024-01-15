@@ -1270,7 +1270,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "oyster-attestation-utility"
+name = "oyster-attestation-server-secp256k1"
 version = "0.1.0"
 dependencies = [
  "actix-web",
