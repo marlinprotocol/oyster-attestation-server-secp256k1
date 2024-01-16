@@ -17,12 +17,12 @@ pub struct AppState {
 
 #[derive(Deserialize, Serialize)]
 struct AttestationVerificationBuilderResponse {
-    attestation_doc: String,
+    attestation: String,
     pcrs: Vec<String>,
     min_cpus: usize,
     min_mem: usize,
     signature: String,
-    secp256k1_key: String,
+    secp256k1_public: String,
 }
 
 #[derive(Error)]
@@ -97,11 +97,11 @@ async fn build_attestation_verification(
         .map_err(UserError::AttestationDecode)?;
 
     Ok(web::Json(AttestationVerificationBuilderResponse {
-        attestation_doc: hex::encode(attestation_doc),
+        attestation: hex::encode(attestation_doc),
         pcrs: decoded_attestation.pcrs,
         min_cpus: decoded_attestation.total_cpus,
         min_mem: decoded_attestation.total_memory,
         signature: hex::encode(sig),
-        secp256k1_key: hex::encode(state.secp256k1_public),
+        secp256k1_public: hex::encode(state.secp256k1_public),
     }))
 }
