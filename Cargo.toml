@@ -12,3 +12,8 @@ libsodium-sys-stable = "1.19.30"
 oyster-sdk = "0.6.1"
 serde = { version = "1.0.152", features = ["derive"] }
 thiserror = "1.0.56"
+
+[profile.release]
+strip = true
+lto = true
+panic = "abort"
