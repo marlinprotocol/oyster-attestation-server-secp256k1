@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
         .as_slice()
         .try_into()
         .context("invalid ed25519_secret")?;
-    let secp256k1_public: [u8; 65] = fs::read(cli.secp256k1_public.clone())
+    let secp256k1_public: [u8; 64] = fs::read(cli.secp256k1_public.clone())
         .with_context(|| {
             format!(
                 "Failed to read secp256k1_public from {}",
