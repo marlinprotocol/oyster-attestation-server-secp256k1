@@ -9,7 +9,7 @@ anyhow = "1.0.79"
 clap = { version = "4.4.6", features = ["derive"] }
 hex = "0.4.3"
 libsodium-sys-stable = "1.19.30"
-oyster-sdk = "0.6.1"
+oyster-sdk = "0.7.0"
 serde = { version = "1.0.152", features = ["derive"] }
 thiserror = "1.0.56"
 
