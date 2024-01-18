@@ -21,6 +21,7 @@ struct AttestationVerificationBuilderResponse {
     pcrs: Vec<String>,
     min_cpus: usize,
     min_mem: usize,
+    timestamp: usize,
     signature: String,
     secp256k1_public: String,
 }
@@ -101,6 +102,7 @@ async fn build_attestation_verification(
         pcrs: decoded_attestation.pcrs,
         min_cpus: decoded_attestation.total_cpus,
         min_mem: decoded_attestation.total_memory,
+        timestamp: decoded_attestation.timestamp,
         signature: hex::encode(sig),
         secp256k1_public: hex::encode(state.secp256k1_public),
     }))
