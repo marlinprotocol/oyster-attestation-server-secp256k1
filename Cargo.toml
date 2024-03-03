@@ -4,14 +4,14 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.4.0"
-anyhow = "1.0.79"
-clap = { version = "4.4.6", features = ["derive"] }
+actix-web = "4.5.1"
+anyhow = "1.0.80"
+clap = { version = "4.5.1", features = ["derive"] }
 hex = "0.4.3"
-libsodium-sys-stable = "1.19.30"
-oyster-sdk = "0.7.0"
-serde = { version = "1.0.152", features = ["derive"] }
-thiserror = "1.0.56"
+libsodium-sys-stable = "1.20.4"
+oyster-sdk = "0.7.1"
+serde = { version = "1.0.197", features = ["derive"] }
+thiserror = "1.0.57"
 
 [profile.release]
 strip = true
